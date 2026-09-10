@@ -1,12 +1,10 @@
 /**
  * Popup script — handles button clicks, communicates with content script,
- * calls the backend API, and displays the generated code.
+ * calls generate() directly (no server needed), and displays the generated code.
  */
 
-// Firefox uses browser.*, Chrome uses chrome.* — normalize to one
+// Firefox uses browser.*, Chrome uses chrome.*
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
-
-const API_URL = 'http://localhost:3000';
 
 // DOM elements
 const generateBtn = document.getElementById('generateBtn');
@@ -17,33 +15,21 @@ const generatePasteBtn = document.getElementById('generatePasteBtn');
 const codeContainer = document.getElementById('codeContainer');
 const codeOutput = document.getElementById('codeOutput');
 const copyBtn = document.getElementById('copyBtn');
-const status = document.getElementById('status');
+const statusEl = document.getElementById('status');
 
 // ---- Status helpers ----
 function showStatus(message, type) {
-  status.textContent = message;
-  status.className = 'status ' + type;
+  statusEl.textContent = message;
+  statusEl.className = 'status ' + type;
 }
 
 function hideStatus() {
-  status.className = 'status';
+  statusEl.className = 'status';
 }
 
-// ---- Call backend API ----
-async function callGenerateAPI(template) {
-  const response = await fetch(`${API_URL}/generate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ template }),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || 'API error');
-  }
-
-  return data.code;
+// ---- Generate code locally (no server!) ----
+function generateCode(template) {
+  return generate(template); // calls generate() from lib/generator.js
 }
 
 // ---- Show generated code ----
@@ -77,16 +63,12 @@ generateBtn.addEventListener('click', async () => {
       return;
     }
 
-    showStatus('⏳ Generating runnable template...', 'loading');
-
-    const code = await callGenerateAPI(response.template);
+    const code = generateCode(response.template);
     showCode(code);
     showStatus('✅ Generated successfully!', 'success');
   } catch (err) {
     if (err.message.includes('Could not establish connection') || err.message.includes('Receiving end does not exist')) {
       showStatus('❌ Content script not loaded. Refresh the LeetCode page and try again.', 'error');
-    } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-      showStatus('❌ Cannot reach server. Make sure it\'s running: npm run dev', 'error');
     } else {
       showStatus('❌ ' + err.message, 'error');
     }
@@ -104,7 +86,7 @@ pasteBtn.addEventListener('click', () => {
 });
 
 // ---- Generate from pasted code ----
-generatePasteBtn.addEventListener('click', async () => {
+generatePasteBtn.addEventListener('click', () => {
   const template = pasteArea.value.trim();
 
   if (!template) {
@@ -112,22 +94,13 @@ generatePasteBtn.addEventListener('click', async () => {
     return;
   }
 
-  generatePasteBtn.disabled = true;
-  showStatus('⏳ Generating runnable template...', 'loading');
-
   try {
-    const code = await callGenerateAPI(template);
+    const code = generateCode(template);
     showCode(code);
     showStatus('✅ Generated successfully!', 'success');
   } catch (err) {
-    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-      showStatus('❌ Cannot reach server. Make sure it\'s running: npm run dev', 'error');
-    } else {
-      showStatus('❌ ' + err.message, 'error');
-    }
+    showStatus('❌ ' + err.message, 'error');
   }
-
-  generatePasteBtn.disabled = false;
 });
 
 // ---- Copy button ----
