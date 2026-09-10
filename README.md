@@ -1,6 +1,8 @@
 # ⚡ LC Template Generator
 
-A browser extension + Node.js backend that converts LeetCode's rigid C++ templates into **complete, runnable C++ files** — so you can debug locally with custom inputs instead of fighting LeetCode's editor.
+A Firefox browser extension that converts LeetCode's rigid C++ templates into **complete, runnable C++ files** — so you can debug locally with custom inputs instead of fighting LeetCode's editor.
+
+**No server needed. No setup. Just install and use.**
 
 ## 🎯 The Problem
 
@@ -19,7 +21,7 @@ You can't run it locally. No `main()`, no input/output, no way to debug with you
 
 ## ✅ The Solution
 
-This tool converts it into:
+This extension converts it into:
 
 ```cpp
 #include<bits/stdc++.h>
@@ -50,109 +52,77 @@ Now you can compile with `g++`, run with your own inputs, add debug prints, and 
 ## 🧠 How It Works
 
 1. **You** open a LeetCode problem in Firefox
-2. **Extension** extracts the C++ template from the code editor
-3. **Backend** parses the method signature (name, return type, params)
-4. **Generator** builds a complete file with `#include`, `main()`, `cin`/`cout` — all auto-generated based on the types
-5. **You** copy the code, paste into your local editor, and debug freely
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   Firefox Extension                  │
-│                                                     │
-│  ┌──────────┐    ┌──────────┐    ┌──────────────┐   │
-│  │content.js│───▶│ popup.js │───▶│  popup.html  │   │
-│  │          │    │          │    │  (Dark UI)   │   │
-│  │Extracts  │    │Calls API │    │  Copy button │   │
-│  │template  │    │Shows code│    │              │   │
-│  └──────────┘    └────┬─────┘    └──────────────┘   │
-│                       │                              │
-└───────────────────────┼──────────────────────────────┘
-                        │ POST /generate
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│                 Node.js Backend                      │
-│                                                     │
-│  ┌───────────┐   ┌─────────────┐   ┌────────────┐  │
-│  │ server.js │──▶│  parser.js  │──▶│generator.js│  │
-│  │           │   │             │   │            │  │
-│  │ Express   │   │ Extracts:   │   │ Builds:    │  │
-│  │ POST      │   │ - method    │   │ - #include │  │
-│  │ /generate │   │ - return    │   │ - main()   │  │
-│  │           │   │   type      │   │ - cin/cout │  │
-│  │           │   │ - params    │   │ - helpers  │  │
-│  └───────────┘   └─────────────┘   └─────┬──────┘  │
-│                                          │         │
-│                                   ┌──────▼──────┐  │
-│                                   │  helpers.js │  │
-│                                   │             │  │
-│                                   │ LinkedList  │  │
-│                                   │ Tree build/ │  │
-│                                   │ print funcs │  │
-│                                   └─────────────┘  │
-└─────────────────────────────────────────────────────┘
-```
-
-## 📁 Project Structure
-
-```
-extension/
-├── package.json
-├── server.js                        # Express API server
-├── src/
-│   ├── parser.js                    # Parses LC template → method metadata
-│   ├── generator.js                 # Metadata → complete runnable C++ file
-│   └── helpers.js                   # C++ helper functions for LinkedList/Tree
-├── tests/
-│   └── generator.test.js            # 40 test cases
-└── chrome-extension/
-    ├── manifest.json                # Firefox/Chrome extension config
-    ├── content.js                   # Extracts code from LC's Monaco editor
-    ├── popup.html                   # Extension popup UI (dark theme)
-    ├── popup.js                     # UI logic + API calls
-    └── icons/
-        ├── icon16.png
-        ├── icon48.png
-        └── icon128.png
-```
-
-## 🚀 Setup
-
-### 1. Install & Start the Backend
-
-```bash
-git clone https://github.com/YOUR_USERNAME/lc-template-generator.git
-cd lc-template-generator
-npm install
-npm run dev
-```
-
-Server starts at `http://localhost:3000`.
-
-### 2. Load the Extension (Firefox)
-
-1. Open Firefox → go to `about:debugging`
-2. Click **"This Firefox"**
-3. Click **"Load Temporary Add-on..."**
-4. Select `chrome-extension/manifest.json`
-
-### 3. Use It
-
-1. Open any LeetCode problem
 2. Click the ⚡ extension icon
 3. Click **🚀 Generate Template**
-4. Click **📋 Copy** → paste into your local editor → compile & run
+4. Extension extracts the C++ template from the code editor
+5. Parser + Generator runs **locally inside the extension** (no server, no internet needed)
+6. Copy the generated code → paste into your local editor → compile & run
 
-## 🔌 API Usage (without extension)
-
-You can also use the API directly:
-
-```bash
-curl -s -X POST http://localhost:3000/generate \
-  -H "Content-Type: application/json" \
-  -d '{"template": "class Solution {\npublic:\n    bool isPalindrome(int x) {\n        \n    }\n};"}'
 ```
+┌──────────────────────────────────────────────────┐
+│               Firefox Extension                   │
+│                                                  │
+│  ┌───────────┐                                   │
+│  │content.js │  Extracts C++ template from       │
+│  │           │  LeetCode's Monaco editor         │
+│  └─────┬─────┘                                   │
+│        │                                         │
+│        ▼                                         │
+│  ┌───────────┐   ┌────────────┐   ┌──────────┐  │
+│  │ parser.js │──▶│generator.js│──▶│ popup.js │  │
+│  │           │   │            │   │          │  │
+│  │ Extracts: │   │ Builds:    │   │ Shows    │  │
+│  │ - method  │   │ - #include │   │ code +   │  │
+│  │ - return  │   │ - main()   │   │ copy btn │  │
+│  │   type    │   │ - cin/cout │   │          │  │
+│  │ - params  │   │ - helpers  │   │          │  │
+│  └───────────┘   └─────┬──────┘   └──────────┘  │
+│                        │                         │
+│                 ┌──────▼──────┐                   │
+│                 │ helpers.js  │                   │
+│                 │             │                   │
+│                 │ LinkedList  │                   │
+│                 │ Tree build/ │                   │
+│                 │ print funcs │                   │
+│                 └─────────────┘                   │
+│                                                  │
+│         Everything runs inside the browser.       │
+│              No server. No internet.              │
+└──────────────────────────────────────────────────┘
+```
+
+## 🚀 Installation
+
+### Option 1: From Firefox Add-ons (coming soon)
+
+Search **"LC Template Generator"** on [addons.mozilla.org](https://addons.mozilla.org) → Install with one click.
+
+### Option 2: Manual Install (Developer)
+
+1. Download or clone this repo
+2. Open Firefox → go to `about:debugging`
+3. Click **"This Firefox"**
+4. Click **"Load Temporary Add-on..."**
+5. Select `chrome-extension/manifest.json`
+6. Done! The ⚡ icon appears in your toolbar.
+
+> **Note:** Temporary add-ons are removed when you close Firefox. For permanent install, use the Add-ons store (Option 1).
+
+## 📖 Usage
+
+### Auto-extract (on LeetCode)
+1. Go to any LeetCode problem (e.g. [Two Sum](https://leetcode.com/problems/two-sum/))
+2. Make sure **C++** is selected as the language
+3. Click the ⚡ extension icon
+4. Click **🚀 Generate Template**
+5. Click **📋 Copy** → paste into your editor
+
+### Manual paste (anywhere)
+1. Click the ⚡ extension icon
+2. Click **📋 Paste Code**
+3. Paste any LeetCode C++ template into the textarea
+4. Click **🚀 Generate from Paste**
+5. Click **📋 Copy**
 
 ## 📋 Supported Types
 
@@ -166,17 +136,47 @@ curl -s -X POST http://localhost:3000/generate \
 | `TreeNode*` | Read level-order values → build tree | Level-order print |
 | `void` | — | No output |
 
-## 🧪 Running Tests
+## 📁 Project Structure
+
+```
+chrome-extension/
+├── manifest.json            # Firefox extension config (Manifest V2)
+├── content.js               # Injected into LC pages — extracts code from Monaco editor
+├── popup.html               # Extension popup UI (dark theme)
+├── popup.js                 # UI logic — calls generate() directly
+├── lib/
+│   ├── parser.js            # Parses LC template → { method, returnType, params }
+│   ├── helpers.js           # C++ helper strings for LinkedList & Tree
+│   └── generator.js         # Assembles complete runnable C++ file
+└── icons/
+    ├── icon16.png
+    ├── icon48.png
+    └── icon128.png
+```
+
+## 🧪 Running Tests (for developers)
+
+The backend version includes a test suite:
 
 ```bash
-npm test
+cd extension
+npm install
+npm test    # 40 tests covering all type combinations
 ```
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Node.js + Express
-- **Extension**: Manifest V2 (Firefox compatible), vanilla JS
-- **Parser**: Regex-based C++ template parsing (no AST library needed)
+- **Extension**: Manifest V2 (Firefox), vanilla JavaScript
+- **Parser**: Regex-based C++ template parsing — no external libraries
+- **Zero dependencies** in the extension — everything runs in the browser
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/awesome`)
+3. Commit your changes (`git commit -m 'Add awesome feature'`)
+4. Push to the branch (`git push origin feature/awesome`)
+5. Open a Pull Request
 
 ## 📄 License
 
