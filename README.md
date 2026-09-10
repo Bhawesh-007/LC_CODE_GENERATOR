@@ -1,6 +1,6 @@
 # ⚡ LC Template Generator
 
-A Firefox browser extension that converts LeetCode's rigid C++ templates into **complete, runnable C++ files** — so you can debug locally with custom inputs instead of fighting LeetCode's editor.
+A  browser extension that converts LeetCode's rigid C++ templates into **complete, runnable C++ files** — so you can debug locally with custom inputs instead of fighting LeetCode's editor.
 
 **No server needed. No setup. Just install and use.**
 
