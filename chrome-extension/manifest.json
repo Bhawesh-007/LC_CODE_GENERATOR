@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "LC Template Generator",
+  "description": "Generate runnable C++ files from LeetCode problem templates with one click",
+  "version": "1.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "lc-template-generator@extension",
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": ["activeTab", "tabs", "*://leetcode.com/*"],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://leetcode.com/problems/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
