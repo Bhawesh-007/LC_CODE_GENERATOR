@@ -93,20 +93,20 @@ Now you can compile with `g++`, run with your own inputs, add debug prints, and 
 
 ## 🚀 Installation
 
-### Option 1: From Firefox Add-ons (coming soon)
+### Option 1: Firefox Manual Install
+1. Open Firefox → go to `about:debugging`
+2. Click **"This Firefox"**
+3. Click **"Load Temporary Add-on..."**
+4. Select `chrome-extension/manifest.json`
+5. Done! The ⚡ icon appears in your toolbar.
 
-Search **"LC Template Generator"** on [addons.mozilla.org](https://addons.mozilla.org) → Install with one click.
-
-### Option 2: Manual Install (Developer)
-
-1. Download or clone this repo
-2. Open Firefox → go to `about:debugging`
-3. Click **"This Firefox"**
-4. Click **"Load Temporary Add-on..."**
-5. Select `chrome-extension/manifest.json`
-6. Done! The ⚡ icon appears in your toolbar.
-
-> **Note:** Temporary add-ons are removed when you close Firefox. For permanent install, use the Add-ons store (Option 1).
+### Option 2: Chrome / Chromium Manual Install
+1. Rename or copy `manifest.chrome.json` to `manifest.json` (or use it when loading in Chrome)
+2. Open Chrome → go to `chrome://extensions`
+3. Enable **Developer mode** (top-right toggle)
+4. Click **"Load unpacked"**
+5. Select the `chrome-extension/` directory
+6. Done!
 
 ## 📖 Usage
 
@@ -141,6 +141,7 @@ Search **"LC Template Generator"** on [addons.mozilla.org](https://addons.mozill
 ```
 chrome-extension/
 ├── manifest.json            # Firefox extension config (Manifest V2)
+├── manifest.chrome.json     # Chrome extension config (Manifest V3)
 ├── content.js               # Injected into LC pages — extracts code from Monaco editor
 ├── popup.html               # Extension popup UI (dark theme)
 ├── popup.js                 # UI logic — calls generate() directly
