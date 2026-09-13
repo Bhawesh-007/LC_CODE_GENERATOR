@@ -118,29 +118,32 @@ Now you can compile with `g++`, copy test cases with one click, run with your ow
 
 ### Auto-extract (on LeetCode)
 1. Go to any LeetCode problem (e.g. [Two Sum](https://leetcode.com/problems/two-sum/))
-2. Make sure **C++** is selected as the language
-3. Click the ⚡ extension icon
-4. Click **🚀 Generate Template**
-5. Click **📋 Copy** → paste into your editor
+2. Make sure **C++** is selected as the language in LeetCode's editor
+3. Click the ⚡ extension icon in your browser toolbar
+4. Click **🚀 Generate Template & Tests**
+5. **Copy C++ Code**: Click **📋 Copy** in the **💻 C++ Code** tab $\to$ paste into your local editor
+6. **Copy Test Cases**: Switch to the **🧪 Test Cases** tab:
+   - Click **📋 Copy** on any individual test case card to copy that specific case formatted for `cin`
+   - Or click **📋 Copy All Cases** to copy all test cases at once
 
 ### Manual paste (anywhere)
 1. Click the ⚡ extension icon
 2. Click **📋 Paste Code**
 3. Paste any LeetCode C++ template into the textarea
 4. Click **🚀 Generate from Paste**
-5. Click **📋 Copy**
+5. Click **📋 Copy** to grab your runnable code
 
-## 📋 Supported Types
+## 📋 Supported Types & Test Case Formats
 
-| Type | Input (cin) | Output (cout) |
-|------|-------------|---------------|
-| `int`, `bool`, `char`, `long long`, `double` | `cin >> x;` | `cout << ans;` |
-| `string` | `cin >> s;` | `cout << ans;` |
-| `vector<int>` | Read size, then loop | Loop print |
-| `vector<vector<int>>` | Read rows, cols, nested loop | Nested loop print |
-| `ListNode*` | Read size + values → build list | Traverse & print |
-| `TreeNode*` | Read level-order values → build tree | Level-order print |
-| `void` | — | No output |
+| Type | Input (cin) | Output (cout) | Example LC Input $\to$ Formatted `cin` |
+|------|-------------|---------------|----------------------------------------|
+| `int`, `bool`, `char`, `long long`, `double` | `cin >> x;` | `cout << ans;` | `121` $\to$ `121` / `true` $\to$ `1` |
+| `string` | `cin >> s;` | `cout << ans;` | `"()[]{}"` $\to$ `()[]{}` |
+| `vector<int>` | Read size, then loop | Loop print | `[2,7,11,15]` $\to$ `4 2 7 11 15` |
+| `vector<vector<int>>` | Read rows, cols, nested loop | Nested loop print | `[[1,0],[0,1]]` $\to$ `2 2\n1 0\n0 1` |
+| `ListNode*` | Read size + values → build list | Traverse & print | `[2,4,3]` $\to$ `3 2 4 3` |
+| `TreeNode*` | Read level-order values → build tree | Level-order print | `[1,null,2]` $\to$ `3 1 -1 2` |
+| `void` | — | No output | — |
 
 ## 📁 Project Structure
 
@@ -148,9 +151,9 @@ Now you can compile with `g++`, copy test cases with one click, run with your ow
 chrome-extension/
 ├── manifest.json            # Firefox extension config (Manifest V2)
 ├── manifest.chrome.json     # Chrome extension config (Manifest V3)
-├── content.js               # Injected into LC pages — extracts code from Monaco editor
-├── popup.html               # Extension popup UI (dark theme)
-├── popup.js                 # UI logic — calls generate() directly
+├── content.js               # Injected into LC pages — extracts code & metadata
+├── popup.html               # Extension popup UI (tabbed dark theme)
+├── popup.js                 # UI logic — calls generator & testcase formatter
 ├── lib/
 │   ├── parser.js            # Parses LC template → { method, returnType, params }
 │   ├── helpers.js           # C++ helper strings for LinkedList & Tree
@@ -164,12 +167,12 @@ chrome-extension/
 
 ## 🧪 Running Tests (for developers)
 
-The backend version includes a test suite:
+The project includes an automated test suite covering all parser, generator, and test case formatting features:
 
 ```bash
 cd extension
 npm install
-npm test    # 40 tests covering all type combinations
+npm test    # 57 tests covering all type combinations & test case formats
 ```
 
 ## 🛠️ Tech Stack
