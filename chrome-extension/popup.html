@@ -11,7 +11,7 @@
     }
 
     body {
-      width: 500px;
+      width: 520px;
       min-height: 200px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #1a1a2e;
@@ -122,10 +122,47 @@
       background: #3d3d55;
     }
 
+    /* Tabs */
+    .tab-bar {
+      display: none;
+      gap: 6px;
+      margin-top: 12px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+    }
+
+    .tab-bar.visible {
+      display: flex;
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #e0e0e0;
+      background: #252538;
+    }
+
+    .tab-btn.active {
+      color: #ffa116;
+      background: #252538;
+      border-color: #ffa116;
+    }
+
     /* Code output */
     .code-container {
       display: none;
-      margin-top: 12px;
+      margin-top: 8px;
     }
 
     .code-container.visible {
@@ -174,7 +211,7 @@
       border-radius: 8px;
       padding: 14px;
       overflow-x: auto;
-      max-height: 400px;
+      max-height: 380px;
       overflow-y: auto;
     }
 
@@ -184,6 +221,71 @@
       line-height: 1.5;
       color: #c9d1d9;
       white-space: pre;
+    }
+
+    /* Test Cases container */
+    .testcases-container {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .testcases-container.visible {
+      display: block;
+    }
+
+    .testcase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .testcase-header span {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .testcase-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .testcase-card {
+      background: #121224;
+      border: 1px solid #2d2d44;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .testcase-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .testcase-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffa116;
+    }
+
+    .testcase-code {
+      background: #0d1117;
+      border: 1px solid #222;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      color: #c9d1d9;
+      white-space: pre-wrap;
+      word-break: break-all;
     }
 
     /* Paste mode */
@@ -214,19 +316,6 @@
       outline: none;
       border-color: #ffa116;
     }
-
-    .not-on-lc {
-      text-align: center;
-      padding: 20px 0;
-      color: #888;
-      font-size: 13px;
-    }
-
-    .not-on-lc .paste-hint {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #666;
-    }
   </style>
 </head>
 <body>
@@ -239,7 +328,7 @@
 
   <!-- Main buttons (shown on LC pages) -->
   <div class="btn-row" id="btnRow">
-    <button class="btn btn-primary" id="generateBtn">🚀 Generate Template</button>
+    <button class="btn btn-primary" id="generateBtn">🚀 Generate Template & Tests</button>
     <button class="btn btn-secondary" id="pasteBtn">📋 Paste Code</button>
   </div>
 
@@ -247,6 +336,12 @@
   <div class="paste-section" id="pasteSection">
     <textarea id="pasteArea" placeholder="Paste your LeetCode C++ template here...&#10;&#10;class Solution {&#10;public:&#10;    bool isPalindrome(int x) {&#10;        &#10;    }&#10;};"></textarea>
     <button class="btn btn-primary" id="generatePasteBtn" style="width: 100%">🚀 Generate from Paste</button>
+  </div>
+
+  <!-- Tab navigation -->
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" id="tabCodeBtn">💻 C++ Code</button>
+    <button class="tab-btn" id="tabTestsBtn">🧪 Test Cases (<span id="testCaseCount">0</span>)</button>
   </div>
 
   <!-- Generated code output -->
@@ -258,9 +353,19 @@
     <pre><code id="codeOutput"></code></pre>
   </div>
 
+  <!-- Test cases output -->
+  <div class="testcases-container" id="testcasesContainer">
+    <div class="testcase-header">
+      <span>Formatted Test Cases (stdin format)</span>
+      <button class="copy-btn" id="copyAllTestsBtn">📋 Copy All Cases</button>
+    </div>
+    <div class="testcase-list" id="testcaseList"></div>
+  </div>
+
   <script src="lib/parser.js"></script>
   <script src="lib/helpers.js"></script>
   <script src="lib/generator.js"></script>
+  <script src="lib/testcase_formatter.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

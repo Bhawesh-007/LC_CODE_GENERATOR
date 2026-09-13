@@ -1,6 +1,7 @@
 /**
  * Content script — injected into LeetCode problem pages.
- * Extracts the C++ code template from the Monaco editor.
+ * Extracts the C++ code template from the Monaco editor and
+ * fetches problem metadata + test cases via LeetCode GraphQL API.
  *
  * Communicates with popup.js via runtime.onMessage.
  */
@@ -10,17 +11,73 @@ const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
 // Listen for messages from the popup
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getTemplate') {
-    // We need to access window.monaco which lives in the page context,
-    // not the content script context. So we inject a script into the page.
-    extractTemplate()
-      .then(template => sendResponse({ success: true, template }))
+  if (request.action === 'getTemplate' || request.action === 'getProblemData') {
+    handleExtraction()
+      .then(data => sendResponse({ success: true, ...data }))
       .catch(err => sendResponse({ success: false, error: err.message }));
 
     // Return true to indicate async response
     return true;
   }
 });
+
+/**
+ * Handle extraction of template and metadata
+ */
+async function handleExtraction() {
+  // 1. Extract template from page
+  const template = await extractTemplate();
+
+  // 2. Extract titleSlug from URL
+  const slugMatch = window.location.pathname.match(/\/problems\/([^\/\?#]+)/);
+  const titleSlug = slugMatch ? slugMatch[1] : null;
+
+  let questionData = null;
+  if (titleSlug) {
+    questionData = await fetchQuestionData(titleSlug);
+  }
+
+  return {
+    template,
+    titleSlug,
+    questionData,
+  };
+}
+
+/**
+ * Fetch question details, metadata, and test cases from LeetCode GraphQL API
+ */
+async function fetchQuestionData(titleSlug) {
+  try {
+    const response = await fetch('/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `query questionData($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            titleSlug
+            questionId
+            title
+            metaData
+            exampleTestcaseList
+            sampleTestCase
+          }
+        }`,
+        variables: { titleSlug },
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const result = await response.json();
+    return result?.data?.question || null;
+  } catch (err) {
+    console.warn('Could not fetch question metadata from LeetCode GraphQL:', err);
+    return null;
+  }
+}
 
 /**
  * Extract the code template from Monaco editor.

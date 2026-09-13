@@ -1,6 +1,6 @@
 # ⚡ LC Template Generator
 
-A  browser extension that converts LeetCode's rigid C++ templates into **complete, runnable C++ files** — so you can debug locally with custom inputs instead of fighting LeetCode's editor.
+A browser extension that converts LeetCode's rigid C++ templates into **complete, runnable C++ files** and extracts **formatted, copiable test cases** — so you can debug locally with custom inputs instead of fighting LeetCode's editor.
 
 **No server needed. No setup. Just install and use.**
 
@@ -17,11 +17,11 @@ public:
 };
 ```
 
-You can't run it locally. No `main()`, no input/output, no way to debug with your own test cases.
+You can't run it locally. No `main()`, no input/output, and extracting test cases manually into the format expected by `cin` is tedious.
 
 ## ✅ The Solution
 
-This extension converts it into:
+This extension converts the code into:
 
 ```cpp
 #include<bits/stdc++.h>
@@ -47,16 +47,22 @@ int main(){
 }
 ```
 
-Now you can compile with `g++`, run with your own inputs, add debug prints, and iterate fast.
+And simultaneously extracts all problem test cases into **standard input (`cin`) format**:
+- **1D Arrays / ListNode**: `4 2 7 11 15` (size + elements)
+- **2D Arrays / Grids**: `2 3\n1 1 0\n0 1 0` (rows, cols + rows)
+- **Binary Trees**: `4 1 -1 2 3` (level-order size + values with `-1` for null)
+- **Multi-argument**: Each parameter on its own line ready for stdin piping!
+
+Now you can compile with `g++`, copy test cases with one click, run with your own inputs, add debug prints, and iterate fast.
 
 ## 🧠 How It Works
 
-1. **You** open a LeetCode problem in Firefox
+1. **You** open a LeetCode problem in Firefox / Chrome
 2. Click the ⚡ extension icon
-3. Click **🚀 Generate Template**
-4. Extension extracts the C++ template from the code editor
-5. Parser + Generator runs **locally inside the extension** (no server, no internet needed)
-6. Copy the generated code → paste into your local editor → compile & run
+3. Click **🚀 Generate Template & Tests**
+4. Extension extracts the C++ template and problem metadata from LeetCode
+5. Parser + Generator + Testcase Formatter runs **locally inside the extension**
+6. Copy the generated code and test cases with one click → paste & debug!
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -148,7 +154,8 @@ chrome-extension/
 ├── lib/
 │   ├── parser.js            # Parses LC template → { method, returnType, params }
 │   ├── helpers.js           # C++ helper strings for LinkedList & Tree
-│   └── generator.js         # Assembles complete runnable C++ file
+│   ├── generator.js         # Assembles complete runnable C++ file
+│   └── testcase_formatter.js # Formats test cases into cin-ready stdin format
 └── icons/
     ├── icon16.png
     ├── icon48.png
